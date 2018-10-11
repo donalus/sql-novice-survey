@@ -27,12 +27,13 @@ from an SQLite database stored in a file called `survey.db`:
 
 ~~~
 import sqlite3
+
 connection = sqlite3.connect("survey.db")
 cursor = connection.cursor()
 cursor.execute("SELECT Site.lat, Site.long FROM Site;")
 results = cursor.fetchall()
 for r in results:
-    print r
+    print(r)
 cursor.close()
 connection.close()
 ~~~
@@ -56,7 +57,7 @@ Line 2 establishes a connection to the database.
 Since we're using SQLite,
 all we need to specify is the name of the database file.
 Other systems may require us to provide a username and password as well.
-Line 3 then uses this connection to create a [cursor]({{ site.github.url }}/reference/#cursor).
+Line 3 then uses this connection to create a [cursor]({{ site.github.url }}/reference.html#cursor).
 Just like the cursor in an editor,
 its role is to keep track of where we are in the database.
 
@@ -91,6 +92,8 @@ For example,
 this function takes a user's ID as a parameter and returns their name:
 
 ~~~
+import sqlite3
+
 def get_name(database_file, person_id):
     query = "SELECT personal || ' ' || family FROM Person WHERE id='" + person_id + "';"
 
@@ -103,11 +106,11 @@ def get_name(database_file, person_id):
 
     return results[0][0]
 
-print "full name for dyer:", get_name('survey.db', 'dyer')
+print("Full name for dyer:", get_name('survey.db', 'dyer'))
 ~~~
 {: .python}
 ~~~
-full name for dyer: William Dyer
+Full name for dyer: William Dyer
 ~~~
 {: .output}
 
@@ -134,7 +137,7 @@ SELECT personal || ' ' || family FROM Person WHERE id='dyer'; DROP TABLE Survey;
 If we execute this,
 it will erase one of the tables in our database.
 
-This is called an [SQL injection attack]({{ site.github.url }}/reference/#sql-injection-attack),
+This is called an [SQL injection attack]({{ site.github.url }}/reference.html#sql-injection-attack),
 and it has been used to attack thousands of programs over the years.
 In particular,
 many web sites that take data from users insert values directly into queries
@@ -144,11 +147,13 @@ Since a villain might try to smuggle commands into our queries in many different
 the safest way to deal with this threat is
 to replace characters like quotes with their escaped equivalents,
 so that we can safely put whatever the user gives us inside a string.
-We can do this by using a [prepared statement]({{ site.github.url }}/reference/#prepared-statement)
+We can do this by using a [prepared statement]({{ site.github.url }}/reference.html#prepared-statement)
 instead of formatting our statements as strings.
 Here's what our example program looks like if we do this:
 
 ~~~
+import sqlite3
+
 def get_name(database_file, person_id):
     query = "SELECT personal || ' ' || family FROM Person WHERE id=?;"
 
@@ -161,11 +166,11 @@ def get_name(database_file, person_id):
 
     return results[0][0]
 
-print "full name for dyer:", get_name('survey.db', 'dyer')
+print("Full name for dyer:", get_name('survey.db', 'dyer'))
 ~~~
 {: .python}
 ~~~
-full name for dyer: William Dyer
+Full name for dyer: William Dyer
 ~~~
 {: .output}
 
@@ -180,6 +185,91 @@ and translates any special characters in the values
 into their escaped equivalents
 so that they are safe to use.
 
+We can also use `sqlite3`'s cursor to make changes to our database,
+such as inserting a new name.
+For instance, we can define a new function called `add_name` like so:
+
+~~~
+import sqlite3
+
+def add_name(database_file, new_person):
+    query = "INSERT INTO Person VALUES (?, ?, ?);"
+
+    connection = sqlite3.connect(database_file)
+    cursor = connection.cursor()
+    cursor.execute(query, list(new_person))
+    cursor.close()
+    connection.close()
+
+
+def get_name(database_file, person_id):
+    query = "SELECT personal || ' ' || family FROM Person WHERE id=?;"
+
+    connection = sqlite3.connect(database_file)
+    cursor = connection.cursor()
+    cursor.execute(query, [person_id])
+    results = cursor.fetchall()
+    cursor.close()
+    connection.close()
+
+    return results[0][0]
+
+# Insert a new name
+add_name('survey.db', ('barrett', 'Mary', 'Barrett'))
+# Check it exists
+print("Full name for barrett:", get_name('survey.db', 'barrett'))
+~~~
+{: .python}
+~~~
+IndexError: list index out of range
+~~~
+{: .output}
+
+Note that in versions of sqlite3 >= 2.5, the `get_name` function described
+above will fail with an `IndexError: list index out of range`,
+even though we added Mary's
+entry into the table using `add_name`.
+This is because we must perform a `connection.commit()` before closing
+the connection, in order to save our changes to the database.
+
+~~~
+import sqlite3
+
+def add_name(database_file, new_person):
+    query = "INSERT INTO Person VALUES (?, ?, ?);"
+
+    connection = sqlite3.connect(database_file)
+    cursor = connection.cursor()
+    cursor.execute(query, list(new_person))
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+
+def get_name(database_file, person_id):
+    query = "SELECT personal || ' ' || family FROM Person WHERE id=?;"
+
+    connection = sqlite3.connect(database_file)
+    cursor = connection.cursor()
+    cursor.execute(query, [person_id])
+    results = cursor.fetchall()
+    cursor.close()
+    connection.close()
+
+    return results[0][0]
+
+# Insert a new name
+add_name('survey.db', ('barrett', 'Mary', 'Barrett'))
+# Check it exists
+print("Full name for barrett:", get_name('survey.db', 'barrett'))
+~~~
+{: .python}
+~~~
+Full name for barrett: Mary Barrett
+~~~
+{: .output}
+
+
 > ## Filling a Table vs. Printing Values
 >
 > Write a Python program that creates a new database in a file called
@@ -188,6 +278,44 @@ so that they are safe to use.
 > between 10.0 and 25.0.  How long does it take this program to run?
 > How long does it take to run a program that simply writes those
 > random numbers to a file?
+>
+> > ## Solution
+> > ~~~
+> > import sqlite3
+> > # import random number generator
+> > from numpy.random import uniform
+> >
+> > random_numbers = uniform(low=10.0, high=25.0, size=100000)
+> >
+> > connection = sqlite3.connect("original.db")
+> > cursor = connection.cursor()
+> > cursor.execute("CREATE TABLE Pressure (reading float not null)")
+> > query = "INSERT INTO Pressure values (?);"
+> >
+> > for number in random_numbers:
+> >     cursor.execute(query, [number])
+> >
+> > cursor.close()
+> > # save changes to file for next exercise
+> > connection.commit()
+> > connection.close()
+> > ~~~
+> > {: .python}
+> >
+> > For comparison, the following program writes the random numbers
+> > into the file `random_numbers.txt`:
+> >
+> > ~~~
+> > from numpy.random import uniform
+> >
+> > random_numbers = uniform(low=10.0, high=25.0, size=100000)
+> > with open('random_numbers.txt', 'w') as outfile:
+> >     for number in random_numbers:
+> >         # need to add linebreak \n
+> >         outfile.write("{}\n".format(number))
+> > ~~~
+> > {: .python}
+> {: .solution}
 {: .challenge}
 
 > ## Filtering in SQL vs. Filtering in Python
@@ -197,4 +325,67 @@ so that they are safe to use.
 > the values greater than 20.0 from `original.db` to `backup.db`.
 > Which is faster: filtering values in the query, or reading
 > everything into memory and filtering in Python?
+>
+> > ## Solution
+> > The first example reads all the data into memory and filters the
+> > numbers using the if statement in Python.
+> >
+> > ~~~
+> > import sqlite3
+> >
+> > connection_original = sqlite3.connect("original.db")
+> > cursor_original = connection_original.cursor()
+> > cursor_original.execute("SELECT * FROM Pressure;")
+> > results = cursor_original.fetchall()
+> > cursor_original.close()
+> > connection_original.close()
+> >
+> > connection_backup = sqlite3.connect("backup.db")
+> > cursor_backup = connection_backup.cursor()
+> > cursor_backup.execute("CREATE TABLE Pressure (reading float not null)")
+> > query = "INSERT INTO Pressure values (?);"
+> >
+> > for entry in results:
+> >     # number is saved in first column of the table
+> >     if entry[0] > 20.0:
+> >         cursor_backup.execute(query, entry)
+> >
+> > cursor_backup.close()
+> > connection_backup.commit()
+> > connection_backup.close()
+> > ~~~
+> > {: .python}
+> >
+> > In contrast the following example uses the conditional ``SELECT`` statement
+> > to filter the numbers in SQL.
+> > The only lines that changed are in line 5, where the values are fetched
+> > from `original.db` and the for loop starting in line 15 used to insert
+> > the numbers into `backup.db`.
+> > Note how this version does not require the use of Python's if statement.
+> >
+> > ~~~
+> > import sqlite3
+> >
+> > connection_original = sqlite3.connect("original.db")
+> > cursor_original = connection_original.cursor()
+> > cursor_original.execute("SELECT * FROM Pressure WHERE reading > 20.0;")
+> > results = cursor_original.fetchall()
+> > cursor_original.close()
+> > connection_original.close()
+> >
+> > connection_backup = sqlite3.connect("backup.db")
+> > cursor_backup = connection_backup.cursor()
+> > cursor_backup.execute("CREATE TABLE Pressure (reading float not null)")
+> > query = "INSERT INTO Pressure values (?);"
+> >
+> > for entry in results:
+> >     cursor_backup.execute(query, entry)
+> >
+> > cursor_backup.close()
+> > connection_backup.commit()
+> > connection_backup.close()
+> > ~~~
+> > {: .python}
+> >
+> {: .solution}
 {: .challenge}

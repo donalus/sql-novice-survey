@@ -14,7 +14,7 @@ keypoints:
 - "Write queries incrementally."
 ---
 One of the most powerful features of a database is
-the ability to [filter]({{ site.github.url }}/reference/#filter) data,
+the ability to [filter]({{ site.github.url }}/reference.html#filter) data,
 i.e.,
 to select only those records that match certain criteria.
 For example,
@@ -23,7 +23,7 @@ We can select these records from the `Visited` table
 by using a `WHERE` clause in our query:
 
 ~~~
-SELECT * FROM Visited WHERE site='DR-1';
+SELECT * FROM Visited WHERE site = 'DR-1';
 ~~~
 {: .sql}
 
@@ -45,7 +45,7 @@ we can filter records using `WHERE`
 based on values in columns that aren't then displayed:
 
 ~~~
-SELECT id FROM Visited WHERE site='DR-1';
+SELECT id FROM Visited WHERE site = 'DR-1';
 ~~~
 {: .sql}
 
@@ -62,7 +62,7 @@ For example,
 we can ask for all information from the DR-1 site collected before 1930:
 
 ~~~
-SELECT * FROM Visited WHERE site='DR-1' AND dated<'1930-01-01';
+SELECT * FROM Visited WHERE site = 'DR-1' AND dated < '1930-01-01';
 ~~~
 {: .sql}
 
@@ -84,20 +84,20 @@ SELECT * FROM Visited WHERE site='DR-1' AND dated<'1930-01-01';
 > it stores dates as either text
 > (in the ISO-8601 standard format "YYYY-MM-DD HH:MM:SS.SSSS"),
 > real numbers
-> (the number of days since November 24, 4714 BCE),
+> ([Julian days](https://en.wikipedia.org/wiki/Julian_day), the number of days since November 24, 4714 BCE),
 > or integers
-> (the number of seconds since midnight, January 1, 1970).
+> ([Unix time](https://en.wikipedia.org/wiki/Unix_time), the number of seconds since midnight, January 1, 1970).
 > If this sounds complicated,
 > it is,
 > but not nearly as complicated as figuring out
-> [historical dates in Sweden](http://en.wikipedia.org/wiki/Swedish_calendar).
+> [historical dates in Sweden](https://en.wikipedia.org/wiki/Swedish_calendar).
 {: .callout}
 
 If we want to find out what measurements were taken by either Lake or Roerich,
 we can combine the tests on their names using `OR`:
 
 ~~~
-SELECT * FROM Survey WHERE person='lake' OR person='roe';
+SELECT * FROM Survey WHERE person = 'lake' OR person = 'roe';
 ~~~
 {: .sql}
 
@@ -141,7 +141,7 @@ If we *don't* use parentheses,
 we get this:
 
 ~~~
-SELECT * FROM Survey WHERE quant='sal' AND person='lake' OR person='roe';
+SELECT * FROM Survey WHERE quant = 'sal' AND person = 'lake' OR person = 'roe';
 ~~~
 {: .sql}
 
@@ -160,7 +160,7 @@ and *any* measurement by Roerich.
 We probably want this instead:
 
 ~~~
-SELECT * FROM Survey WHERE quant='sal' AND (person='lake' OR person='roe');
+SELECT * FROM Survey WHERE quant = 'sal' AND (person = 'lake' OR person = 'roe');
 ~~~
 {: .sql}
 
@@ -176,7 +176,7 @@ SELECT * FROM Survey WHERE quant='sal' AND (person='lake' OR person='roe');
 We can also filter by partial matches.  For example, if we want to
 know something just about the site names beginning with "DR" we can
 use the `LIKE` keyword.  The percent symbol acts as a
-[wildcard]({{ site.github.url }}/reference/#wildcard), matching any characters in that
+[wildcard]({{ site.github.url }}/reference.html#wildcard), matching any characters in that
 place.  It can be used at the beginning, middle, or end of the string:
 
 ~~~
@@ -200,7 +200,7 @@ we can use `DISTINCT` with `WHERE`
 to give a second level of filtering:
 
 ~~~
-SELECT DISTINCT person, quant FROM Survey WHERE person='lake' OR person='roe';
+SELECT DISTINCT person, quant FROM Survey WHERE person = 'lake' OR person = 'roe';
 ~~~
 {: .sql}
 
@@ -250,6 +250,18 @@ not to the entire rows as they are being processed.
 >
 > Explain why this is wrong,
 > and rewrite the query so that it is correct.
+>
+> > ## Solution
+> >
+> > Because we used `OR`, a site on the South Pole for example will still meet 
+> > the second criteria and thus be included. Instead, we want to restrict this
+> > to sites that meet _both_ criteria:
+> >
+> > ~~~
+> > SELECT * FROM Site WHERE (lat > -48) AND (lat < 48);
+> > ~~~
+> > {: .sql}
+> {: .solution}
 {: .challenge}
 
 > ## Finding Outliers
@@ -257,15 +269,37 @@ not to the entire rows as they are being processed.
 > Normalized salinity readings are supposed to be between 0.0 and 1.0.
 > Write a query that selects all records from `Survey`
 > with salinity values outside this range.
+>
+> > ## Solution
+> >
+> > ~~~
+> > SELECT * FROM Survey WHERE quant = 'sal' AND ((reading > 1.0) OR (reading < 0.0));
+> > ~~~
+> > {: .sql}
+> >
+> > |taken     |person    |quant     |reading   |
+> > |----------|----------|----------|----------|
+> > |752       |roe       |sal       |41.6      |
+> > |837       |roe       |sal       |22.5      |
+> {: .solution}
 {: .challenge}
 
 > ## Matching Patterns
 >
 > Which of these expressions are true?
 >
-> * `'a' LIKE 'a'`
-> * `'a' LIKE '%a'`
-> * `'beta' LIKE '%a'`
-> * `'alpha' LIKE 'a%%'`
-> * `'alpha' LIKE 'a%p%'`
+> 1. `'a' LIKE 'a'`
+> 2. `'a' LIKE '%a'`
+> 3. `'beta' LIKE '%a'`
+> 4. `'alpha' LIKE 'a%%'`
+> 5. `'alpha' LIKE 'a%p%'`
+>
+> > ## Solution
+> >
+> > 1. True because these are the same character.
+> > 2. True because the wildcard can match _zero_ or more characters.
+> > 3. True because the `%` matches `bet` and the `a` matches the `a`.
+> > 4. True because the first wildcard matches `lpha` and the second wildcard matches zero characters (or vice versa).
+> > 5. True because the first wildcard matches `l` and the second wildcard matches `ha`.
+> {: .solution}
 {: .challenge}

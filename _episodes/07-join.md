@@ -70,7 +70,7 @@ SELECT * FROM Site JOIN Visited;
 |MSK-4|-48.87|-123.4 |844  |DR-1  |1932-03-22|
 
 `JOIN` creates
-the [cross product]({{ site.github.url }}/reference/#cross-product)
+the [cross product]({{ site.github.url }}/reference.html#cross-product)
 of two tables,
 i.e.,
 it joins each record of one table with each record of the other table
@@ -90,7 +90,7 @@ we're only interested in combinations that have the same site name,
 thus we need to use a filter:
 
 ~~~
-SELECT * FROM Site JOIN Visited ON Site.name=Visited.site;
+SELECT * FROM Site JOIN Visited ON Site.name = Visited.site;
 ~~~
 {: .sql}
 
@@ -130,7 +130,7 @@ out of our join:
 ~~~
 SELECT Site.lat, Site.long, Visited.dated
 FROM   Site JOIN Visited
-ON     Site.name=Visited.site;
+ON     Site.name = Visited.site;
 ~~~
 {: .sql}
 
@@ -156,8 +156,8 @@ that don't make sense:
 ~~~
 SELECT Site.lat, Site.long, Visited.dated, Survey.quant, Survey.reading
 FROM   Site JOIN Visited JOIN Survey
-ON     Site.name=Visited.site
-AND    Visited.id=Survey.taken
+ON     Site.name = Visited.site
+AND    Visited.id = Survey.taken
 AND    Visited.dated IS NOT NULL;
 ~~~
 {: .sql}
@@ -185,8 +185,8 @@ AND    Visited.dated IS NOT NULL;
 We can tell which records from `Site`, `Visited`, and `Survey`
 correspond with each other
 because those tables contain
-[primary keys]({{ site.github.url }}/reference/#primary-key)
-and [foreign keys]({{ site.github.url }}/reference/#foreign-key).
+[primary keys]({{ site.github.url }}/reference.html#primary-key)
+and [foreign keys]({{ site.github.url }}/reference.html#foreign-key).
 A primary key is a value,
 or combination of values,
 that uniquely identifies each record in a table.
@@ -233,11 +233,45 @@ SELECT rowid, * FROM Person;
 > ## Listing Radiation Readings
 >
 > Write a query that lists all radiation readings from the DR-1 site.
+ > > ## Solution
+ > > 
+ > > ~~~
+ > > SELECT Survey.reading 
+ > > FROM Site JOIN Visited JOIN Survey 
+ > > ON Site.name = Visited.site
+ > > AND Visited.id = Survey.taken
+ > > WHERE Site.name = "DR-1" 
+ > > AND Survey.quant = "rad";
+ > > ~~~
+ > > {: .sql}
+ > >
+ > > |reading   |
+ > > |----------|
+ > > |9.82      |
+ > > |7.8       |
+ > > |11.25     |
+ > {: .solution}
 {: .challenge}
 
 > ## Where's Frank?
 >
 > Write a query that lists all sites visited by people named "Frank".
+ > > ## Solution
+ > > 
+ > > ~~~
+ > > SELECT DISTINCT Site.name
+ > > FROM Site JOIN Visited JOIN Survey JOIN Person
+ > > ON Site.name = Visited.site
+ > > AND Visited.id = Survey.taken
+ > > AND Survey.person = Person.id
+ > > WHERE Person.personal = "Frank";
+ > > ~~~
+ > > {: .sql}
+ > >
+ > > |name   |
+ > > |-------|
+ > > |DR-3   |
+ > {: .solution}
 {: .challenge}
 
 > ## Reading Queries
@@ -246,7 +280,7 @@ SELECT rowid, * FROM Person;
 >
 > ~~~
 > SELECT Site.name FROM Site JOIN Visited
-> ON Site.lat<-49.0 AND Site.name=Visited.site AND Visited.dated>='1932-01-01';
+> ON Site.lat <- 49.0 AND Site.name = Visited.site AND Visited.dated >= '1932-01-01';
 > ~~~
 > {: .sql}
 {: .challenge}
@@ -257,10 +291,42 @@ SELECT rowid, * FROM Person;
 > followed by personal name and family name of the person who visited the site
 > and the type of measurement taken and its reading. Please avoid all null values.
 > Tip: you should get 15 records with 8 fields.
+ > > ## Solution
+ > > 
+ > > ~~~
+ > > SELECT Site.name, Site.lat, Site.long, Person.personal, Person.family, Survey.quant, Survey.reading, Visited.dated
+ > > FROM Site JOIN Visited JOIN Survey JOIN Person
+ > > ON Site.name = Visited.site
+ > > AND Visited.id = Survey.taken
+ > > AND Survey.person = Person.id
+ > > WHERE Survey.person IS NOT NULL
+ > > AND Visited.dated IS NOT NULL
+ > > ORDER BY Visited.dated;
+ > > ~~~
+ > > {: .sql}
+ > >
+ > > name   |  lat        |  long       |  personal   | family   | quant     | reading   |     dated
+ > >--------|-------------|-------------|-------------|----------|-----------|-----------|-----------
+ > >DR-1    |    -49.85   |   -128.57   |  William    | Dyer     |   rad     |    9.82   |   1927-02-08
+ > >DR-1    |    -49.85   |   -128.57   |  William    | Dyer     |   sal     |    0.13   |   1927-02-08
+ > >DR-1    |    -49.85   |   -128.57   |  William    | Dyer     |   rad     |    7.8    |   1927-02-10
+ > >DR-1    |    -49.85   |   -128.57   |  William    | Dyer     |   sal     |    0.09   |   1927-02-10
+ > >DR-3    |    -47.15   |   -126.72   |  Anderson   | Lake     |   sal     |    0.05   |   1930-01-07
+ > >DR-3    |    -47.15   |   -126.72   |  Frank      | Pabodie  |   rad     |    8.41   |   1930-01-07
+ > >DR-3    |    -47.15   |   -126.72   |  Frank      | Pabodie  |   temp    |    -21.5  |   1930-01-07
+ > >DR-3    |    -47.15   |   -126.72   |  Frank      | Pabodie  |   rad     |    7.22   |   1930-01-12
+ > >DR-3    |    -47.15   |   -126.72   |  Anderson   | Lake     |   sal     |    0.1    |   1930-02-26
+ > >DR-3    |    -47.15   |   -126.72   |  Frank      | Pabodie  |   rad     |    4.35   |   1930-02-26
+ > >DR-3    |    -47.15   |   -126.72   |  Frank      | Pabodie  |   temp    |    -18.5  |   1930-02-26
+ > >MSK-4   |    -48.87   |   -123.4    |  Anderson   | Lake     |   rad     |    1.46   |   1932-01-14
+ > >MSK-4   |    -48.87   |   -123.4    |  Anderson   | Lake     |   sal     |    0.21   |   1932-01-14
+ > >MSK-4   |    -48.87   |   -123.4    |  Valentina  | Roerich  |   sal     |    22.5   |   1932-01-14
+ > >DR-1    |    -49.85   |   -128.57   |  Valentina  | Roerich  |   rad     |    11.25  |   1932-03-22
+ > {: .solution}
 {: .challenge}
 
 A good visual explanation of joins can be found [here][joinref]
 
-[outer]: http://en.wikipedia.org/wiki/Join_%28SQL%29#Outer_join
+[outer]: https://en.wikipedia.org/wiki/Join_%28SQL%29#Outer_join
 [rowid]: https://www.sqlite.org/lang_createtable.html#rowid
-[joinref]: http://sql-joins.leopard.in.ua/
+[joinref]: https://sql-joins.leopard.in.ua/

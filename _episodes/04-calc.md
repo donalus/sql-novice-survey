@@ -18,7 +18,7 @@ we can do this calculation on the fly
 as part of our query:
 
 ~~~
-SELECT 1.05 * reading FROM Survey WHERE quant='rad';
+SELECT 1.05 * reading FROM Survey WHERE quant = 'rad';
 ~~~
 {: .sql}
 
@@ -44,7 +44,7 @@ we can convert temperature readings from Fahrenheit to Celsius
 and round to two decimal places:
 
 ~~~
-SELECT taken, round(5*(reading-32)/9, 2) FROM Survey WHERE quant='temp';
+SELECT taken, round(5 * (reading - 32) / 9, 2) FROM Survey WHERE quant = 'temp';
 ~~~
 {: .sql}
 
@@ -63,7 +63,7 @@ succinctness and clarity. For example, we could write the previous
 query as:
 
 ~~~
-SELECT taken, round(5*(reading-32)/9, 2) as Celsius FROM Survey WHERE quant='temp';
+SELECT taken, round(5 * (reading - 32) / 9, 2) as Celsius FROM Survey WHERE quant = 'temp';
 ~~~
 {: .sql}
 
@@ -98,6 +98,19 @@ SELECT personal || ' ' || family FROM Person;
 > Write a query that returns all of her salinity measurements
 > from the `Survey` table
 > with the values divided by 100.
+> 
+> > ## Solution
+> >
+> > ~~~
+> > SELECT taken, reading / 100 FROM Survey WHERE person = 'roe' AND quant = 'sal';
+> > ~~~
+> > {: .sql}
+> >
+> > |taken     |reading / 100|
+> > |----------|-------------|
+> > |752       |0.416        |
+> > |837       |0.225        |
+> {: .solution}
 {: .challenge}
 
 > ## Unions
@@ -105,7 +118,7 @@ SELECT personal || ' ' || family FROM Person;
 > The `UNION` operator combines the results of two queries:
 >
 > ~~~
-> SELECT * FROM Person WHERE id='dyer' UNION SELECT * FROM Person WHERE id='roe';
+> SELECT * FROM Person WHERE id = 'dyer' UNION SELECT * FROM Person WHERE id = 'roe';
 > ~~~
 > {: .sql}
 >
@@ -115,7 +128,7 @@ SELECT personal || ' ' || family FROM Person;
 > |roe |Valentina|Roerich|
 >
 > Use `UNION` to create a consolidated list of salinity measurements
-> in which Roerich's, and only Roerich's,
+> in which Valentina Roerich's, and only Valentina's,
 > have been corrected as described in the previous challenge.
 > The output should be something like:
 >
@@ -129,6 +142,14 @@ SELECT personal || ' ' || family FROM Person;
 > |752  |0.416  |
 > |837  |0.21   |
 > |837  |0.225  |
+> 
+> > ## Solution
+> >
+> > ~~~
+> > SELECT taken, reading FROM Survey WHERE person != 'roe' AND quant = 'sal' UNION SELECT taken, reading / 100 FROM Survey WHERE person = 'roe' AND quant = 'sal' ORDER BY taken ASC;
+> > ~~~
+> > {: .sql}
+> {: .solution}
 {: .challenge}
 
 > ## Selecting Major Site Identifiers
@@ -147,7 +168,7 @@ SELECT personal || ' ' || family FROM Person;
 > |DR-3 |
 > |MSK-4|
 >
-> Some major site identifiers are two letters long and some are three.
+> Some major site identifiers (i.e. the letter codes) are two letters long and some are three.
 > The "in string" function `instr(X, Y)`
 > returns the 1-based index of the first occurrence of string Y in string X,
 > or 0 if Y does not exist in X.
@@ -156,4 +177,11 @@ SELECT personal || ' ' || family FROM Person;
 > Use these two functions to produce a list of unique major site identifiers.
 > (For this data,
 > the list should contain only "DR" and "MSK").
+>
+> > ## Solution
+> > ```
+> > SELECT DISTINCT substr(site, 1, instr(site, '-') - 1) AS MajorSite FROM Visited;
+> > ```
+> > {: .sql}
+> {: .solution}
 {: .challenge}

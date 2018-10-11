@@ -47,7 +47,7 @@ Null doesn't behave like other values.
 If we select the records that come before 1930:
 
 ~~~
-SELECT * FROM Visited WHERE dated<'1930-01-01';
+SELECT * FROM Visited WHERE dated < '1930-01-01';
 ~~~
 {: .sql}
 
@@ -60,7 +60,7 @@ we get two results,
 and if we select the ones that come during or after 1930:
 
 ~~~
-SELECT * FROM Visited WHERE dated>='1930-01-01';
+SELECT * FROM Visited WHERE dated >= '1930-01-01';
 ~~~
 {: .sql}
 
@@ -98,14 +98,14 @@ In particular,
 comparing things to null with = and != produces null:
 
 ~~~
-SELECT * FROM Visited WHERE dated=NULL;
+SELECT * FROM Visited WHERE dated = NULL;
 ~~~
 {: .sql}
 
 produces no output, and neither does:
 
 ~~~
-SELECT * FROM Visited WHERE dated!=NULL;
+SELECT * FROM Visited WHERE dated != NULL;
 ~~~
 {: .sql}
 
@@ -145,7 +145,7 @@ that weren't taken by Lake.
 It's natural to write the query like this:
 
 ~~~
-SELECT * FROM Survey WHERE quant='sal' AND person!='lake';
+SELECT * FROM Survey WHERE quant = 'sal' AND person != 'lake';
 ~~~
 {: .sql}
 
@@ -166,7 +166,7 @@ If we want to keep these records
 we need to add an explicit check:
 
 ~~~
-SELECT * FROM Survey WHERE quant='sal' AND (person!='lake' OR person IS NULL);
+SELECT * FROM Survey WHERE quant = 'sal' AND (person != 'lake' OR person IS NULL);
 ~~~
 {: .sql}
 
@@ -195,6 +195,24 @@ detail in [the next section]({{ site.github.url }}/06-agg/).
 > Write a query that sorts the records in `Visited` by date,
 > omitting entries for which the date is not known
 > (i.e., is null).
+>
+> > ## Solution
+> >
+> > ~~~
+> > SELECT * FROM Visited WHERE dated IS NOT NULL ORDER BY dated ASC;
+> > ~~~
+> > {: .sql}
+> >
+> > |id        |site      |dated     |
+> > |----------|----------|----------|
+> > |619       |DR-1      |1927-02-08|
+> > |622       |DR-1      |1927-02-10|
+> > |734       |DR-3      |1930-01-07|
+> > |735       |DR-3      |1930-01-12|
+> > |751       |DR-3      |1930-02-26|
+> > |837       |MSK-4     |1932-01-14|
+> > |844       |DR-1      |1932-03-22|
+> {: .solution}
 {: .challenge}
 
 > ## NULL in a Set
@@ -213,7 +231,7 @@ detail in [the next section]({{ site.github.url }}/06-agg/).
 > ## Pros and Cons of Sentinels
 >
 > Some database designers prefer to use
-> a [sentinel value]({{ site.github.url }}/reference/#sentinel-value)
+> a [sentinel value]({{ site.github.url }}/reference.html#sentinel-value)
 > to mark missing data rather than `null`.
 > For example,
 > they will use the date "0000-00-00" to mark a missing date,

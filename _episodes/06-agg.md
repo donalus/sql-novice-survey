@@ -36,7 +36,7 @@ SELECT dated FROM Visited;
 |1932-03-22|
 
 but to combine them,
-we must use an [aggregation function]({{ site.github.url }}/reference/#aggregation-function)
+we must use an [aggregation function]({{ site.github.url }}/reference.html#aggregation-function)
 such as `min` or `max`.
 Each of these functions takes a set of records as input,
 and produces a single record as output:
@@ -68,7 +68,7 @@ Three others are `avg`,
 and `sum`:
 
 ~~~
-SELECT avg(reading) FROM Survey WHERE quant='sal';
+SELECT avg(reading) FROM Survey WHERE quant = 'sal';
 ~~~
 {: .sql}
 
@@ -77,7 +77,7 @@ SELECT avg(reading) FROM Survey WHERE quant='sal';
 |7.20333333333333|
 
 ~~~
-SELECT count(reading) FROM Survey WHERE quant='sal';
+SELECT count(reading) FROM Survey WHERE quant = 'sal';
 ~~~
 {: .sql}
 
@@ -86,7 +86,7 @@ SELECT count(reading) FROM Survey WHERE quant='sal';
 |9             |
 
 ~~~
-SELECT sum(reading) FROM Survey WHERE quant='sal';
+SELECT sum(reading) FROM Survey WHERE quant = 'sal';
 ~~~
 {: .sql}
 
@@ -107,7 +107,7 @@ for example,
 find the range of sensible salinity measurements:
 
 ~~~
-SELECT min(reading), max(reading) FROM Survey WHERE quant='sal' AND reading<=1.0;
+SELECT min(reading), max(reading) FROM Survey WHERE quant = 'sal' AND reading <= 1.0;
 ~~~
 {: .sql}
 
@@ -119,7 +119,7 @@ We can also combine aggregated results with raw results,
 although the output might surprise you:
 
 ~~~
-SELECT person, count(*) FROM Survey WHERE quant='sal' AND reading<=1.0;
+SELECT person, count(*) FROM Survey WHERE quant = 'sal' AND reading <= 1.0;
 ~~~
 {: .sql}
 
@@ -141,7 +141,7 @@ aggregation's result is "don't know"
 rather than zero or some other arbitrary value:
 
 ~~~
-SELECT person, max(reading), sum(reading) FROM Survey WHERE quant='missing';
+SELECT person, max(reading), sum(reading) FROM Survey WHERE quant = 'missing';
 ~~~
 {: .sql}
 
@@ -193,7 +193,7 @@ We know that this doesn't work:
 ~~~
 SELECT person, count(reading), round(avg(reading), 2)
 FROM  Survey
-WHERE quant='rad';
+WHERE quant = 'rad';
 ~~~
 {: .sql}
 
@@ -209,8 +209,8 @@ we could write five queries of the form:
 ~~~
 SELECT person, count(reading), round(avg(reading), 2)
 FROM  Survey
-WHERE quant='rad'
-AND   person='dyer';
+WHERE quant = 'rad'
+AND   person = 'dyer';
 ~~~
 {: .sql}
 
@@ -229,7 +229,7 @@ using a `GROUP BY` clause:
 ~~~
 SELECT   person, count(reading), round(avg(reading), 2)
 FROM     Survey
-WHERE    quant='rad'
+WHERE    quant = 'rad'
 GROUP BY person;
 ~~~
 {: .sql}
@@ -327,6 +327,18 @@ this query:
 >
 > How many temperature readings did Frank Pabodie record,
 > and what was their average value?
+>
+> > ## Solution
+> >
+> > ~~~
+> > SELECT count(reading), avg(reading) FROM Survey WHERE quant = 'temp' AND person = 'pb';
+> > ~~~
+> > {: .sql}
+> >
+> > |count(reading)|avg(reading)|
+> > |--------------|------------|
+> > |2             |-20.0       |
+> {: .solution}
 {: .challenge}
 
 > ## Averaging with NULL
@@ -335,6 +347,21 @@ this query:
 > divided by the number of values.
 > Does this mean that the `avg` function returns 2.0 or 3.0
 > when given the values 1.0, `null`, and 5.0?
+>
+> > ## Solution
+> > The answer is 3.0.
+> > `NULL` is not a value; it is the absence of a value.
+> > As such it is not included in the calculation.
+> >
+> > You can confirm this, by executing this code:
+> > ```
+> > SELECT AVG(a) FROM (
+> >     SELECT 1 AS a
+> >     UNION ALL SELECT NULL
+> >     UNION ALL SELECT 5);
+> > ```
+> > {: .sql}
+> {: .solution}
 {: .challenge}
 
 > ## What Does This Query Do?
@@ -345,7 +372,7 @@ this query:
 > We write the query:
 >
 > ~~~
-> SELECT reading - avg(reading) FROM Survey WHERE quant='rad';
+> SELECT reading - avg(reading) FROM Survey WHERE quant = 'rad';
 > ~~~
 > {: .sql}
 >

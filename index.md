@@ -7,7 +7,7 @@ In the late 1920s and early 1930s,
 William Dyer,
 Frank Pabodie,
 and Valentina Roerich led expeditions to the
-[Pole of Inaccessibility](http://en.wikipedia.org/wiki/Pole_of_inaccessibility)
+[Pole of Inaccessibility](https://en.wikipedia.org/wiki/Pole_of_inaccessibility)
 in the South Pacific,
 and then onward to Antarctica.
 Two years ago,
@@ -31,6 +31,6 @@ These lessons will show how to use a database to explore the expeditions' data.
 
 > ## Prerequisites
 >
-> *    Unix shell plus SQLite3 or Firefox SQLite plugin.
-> *    [survey.db]({{ site.github.repository_url }}/raw/gh-pages/files/survey.db)
+> * This lesson requires the Unix shell, plus [SQLite3](http://www.sqlite.org/) or [DB Browser for SQLite](http://sqlitebrowser.org/).
+> * Please download the database we will use: [survey.db]({{ page.root }}/files/survey.db)
 {: .prereq}

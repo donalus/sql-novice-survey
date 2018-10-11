@@ -5,7 +5,7 @@ exercises: 10
 questions:
 - "How can I create, modify, and delete tables and data?"
 objectives:
-- "Write statements that creates tables."
+- "Write statements that create tables."
 - "Write statements to insert, modify, and delete records."
 keypoints:
 - "Use CREATE and DROP to create and delete tables."
@@ -46,22 +46,22 @@ DROP TABLE Survey;
 {: .sql}
 
 Be very careful when doing this:
-most databases have some support for undoing changes,
+if you drop the wrong table, hope that the person maintaining the database has a backup,
 but it's better not to have to rely on it.
 
 Different database systems support different data types for table columns,
 but most provide the following:
 
-data type  use
----------  -----------------------------------------
-INTEGER    a signed integer
-REAL       a floating point number
-TEXT       a character string
-BLOB       a "binary large object", such as an image
+|data type|  use                                       | 
+|---------|  ----------------------------------------- |
+|INTEGER  |  a signed integer                          |
+|REAL     |  a floating point number                   |
+|TEXT     |  a character string                        |
+|BLOB     |  a "binary large object", such as an image |
 
 Most databases also support Booleans and date/time values;
 SQLite uses the integers 0 and 1 for the former,
-and represents the latter as discussed [earlier](#a:dates).
+and represents the latter as discussed [earlier]({{ page.root }}/03-filter/#date-types).
 An increasing number of databases also support geographic data types,
 such as latitude and longitude.
 Keeping track of what particular systems do or do not offer,
@@ -98,9 +98,9 @@ we can add, change, and remove records using our other set of commands,
 The simplest form of `INSERT` statement lists values in order:
 
 ~~~
-INSERT INTO Site values('DR-1', -49.85, -128.57);
-INSERT INTO Site values('DR-3', -47.15, -126.72);
-INSERT INTO Site values('MSK-4', -48.87, -123.40);
+INSERT INTO Site VALUES('DR-1', -49.85, -128.57);
+INSERT INTO Site VALUES('DR-3', -47.15, -126.72);
+INSERT INTO Site VALUES('MSK-4', -48.87, -123.40);
 ~~~
 {: .sql}
 
@@ -121,11 +121,11 @@ For example, if we made a mistake when entering the lat and long values
 of the last `INSERT` statement above:
 
 ~~~
-UPDATE Site SET lat=-47.87, long=-122.40 WHERE name='MSK-4';
+UPDATE Site SET lat = -47.87, long = -122.40 WHERE name = 'MSK-4';
 ~~~
 {: .sql}
 
-Be careful to not forget the `where` clause or the update statement will
+Be careful to not forget the `WHERE` clause or the update statement will
 modify *all* of the records in the database.
 
 Deleting records can be a bit trickier,
@@ -150,14 +150,14 @@ but that's never supposed to happen:
 and all our queries assume there will be a row in the latter
 matching every value in the former.
 
-This problem is called [referential integrity]({{ site.github.url }}/reference/#referential-integrity):
+This problem is called [referential integrity]({{ site.github.url }}/reference.html#referential-integrity):
 we need to ensure that all references between tables can always be resolved correctly.
 One way to do this is to delete all the records
 that use `'lake'` as a foreign key
 before deleting the record that uses it as a primary key.
 If our database manager supports it,
 we can automate this
-using [cascading delete]({{ site.github.url }}/reference/#cascading-delete).
+using [cascading delete]({{ site.github.url }}/reference.html#cascading-delete).
 However,
 this technique is outside the scope of this chapter.
 
@@ -180,11 +180,18 @@ this technique is outside the scope of this chapter.
 >
 > Write an SQL statement to replace all uses of `null` in
 > `Survey.person` with the string `'unknown'`.
+>
+> > ## Solution
+> > ~~~
+> > UPDATE Survey SET person = "unknown" WHERE person IS NULL;
+> > ~~~
+> > {: .sql}
+> {: .solution}
 {: .challenge}
 
 > ## Generating Insert Statements
 >
-> One of our colleagues has sent us a [CSV]({{ site.github.url }}/reference/#comma-separated-values) file containing
+> One of our colleagues has sent us a [CSV]({{ site.github.url }}/reference.html#comma-separated-values-csv) file containing
 > temperature readings by Robert Olmstead, which is formatted like
 > this:
 >
@@ -206,12 +213,25 @@ this technique is outside the scope of this chapter.
 >
 > SQLite has several administrative commands that aren't part of the
 > SQL standard.  One of them is `.dump`, which prints the SQL commands
-> needed to re-create the database.  Another is `.load`, which reads a
+> needed to re-create the database.  Another is `.read`, which reads a
 > file created by `.dump` and restores the database.  A colleague of
 > yours thinks that storing dump files (which are text) in version
 > control is a good way to track and manage changes to the database.
 > What are the pros and cons of this approach?  (Hint: records aren't
 > stored in any particular order.)
+>
+> > ## Solution
+> > #### Advantages
+> > - A version control system will be able to show differences between versions
+> > of the dump file; something it can't do for binary files like databases
+> > - A VCS only saves changes between versions, rather than a complete copy of
+> > each version (save disk space)
+> > - The version control log will explain the reason for the changes in each version
+> > of the database
+> >
+> > #### Disadvantages
+> > - Artificial differences between commits because records don't have a fixed order
+> {: .solution}
 {: .challenge}
 
 [create-table]: https://www.sqlite.org/lang_createtable.html

@@ -72,10 +72,12 @@ SELECT DISTINCT quant FROM Survey;
 |sal  |
 |temp |
 
-If we want to determine which sites have which quant measurement,
+If we want to determine which visit (stored in the `taken` column)
+have which `quant` measurement,
 we can use the `DISTINCT` keyword on multiple columns.
 If we select more than one column,
-the distinct *pairs* of values are returned:
+distinct *sets* of values are returned
+(in this case *pairs*, because we are selecting two columns):
 
 ~~~
 SELECT DISTINCT taken, quant FROM Survey;
@@ -130,12 +132,17 @@ SELECT * FROM Person ORDER BY id;
 |pb     |Frank    |Pabodie |
 |roe    |Valentina|Roerich |
 
-By default,
-results are sorted in ascending order
+By default, when we use ORDER BY
+results are sorted in ascending order of the column we specify
 (i.e.,
 from least to greatest).
+
 We can sort in the opposite order using `DESC` (for "descending"):
 
+> ## A note on ordering
+>
+> While it may look that the records are consistent every time we ask for them in this lesson, that is because no one has changed or modified any of the data so far. Remember to use ORDER BY if you want the rows returned to have any sort of consistent or predictable order.
+{: .callout}
 ~~~
 SELECT * FROM person ORDER BY id DESC;
 ~~~
@@ -153,7 +160,7 @@ SELECT * FROM person ORDER BY id DESC;
 we can use `ASC` instead of `DESC`.)
 
 
-In order to look at which scientist measured quantities at each site,
+In order to look at which scientist measured quantities during each visit,
 we can look again at the `Survey` table.
 We can also sort on several fields at once.
 For example,
@@ -190,8 +197,8 @@ SELECT taken, person, quant FROM Survey ORDER BY taken ASC, person DESC;
 |837  |lake  |sal  |
 |844  |roe   |rad  |
 
-This query gives us a good idea of which scientist was at which site,
-and what measurements they performed while they were there.
+This query gives us a good idea of which scientist was involved in which visit,
+and what measurements they performed during the visit.
 
 Looking at the table, it seems like some scientists specialized in
 certain kinds of measurements.  We can examine which scientists
@@ -220,10 +227,45 @@ SELECT DISTINCT quant, person FROM Survey ORDER BY quant ASC;
 > ## Finding Distinct Dates
 >
 > Write a query that selects distinct dates from the `Visited` table.
+>
+> > ## Solution
+> > 
+> > ~~~
+> > SELECT DISTINCT dated FROM Visited;
+> > ~~~
+> > {: .sql}
+> >
+> > |dated     |
+> > |----------|
+> > |1927-02-08|
+> > |1927-02-10|
+> > |1930-01-07|
+> > |1930-01-12|
+> > |1930-02-26|
+> > |&nbsp;    |
+> > |1932-01-14|
+> > |1932-03-22|
+> {: .solution}
 {: .challenge}
 
 > ## Displaying Full Names
 >
 > Write a query that displays the full names of the scientists in the `Person` table,
 > ordered by family name.
+>
+> > ## Solution
+> > 
+> > ~~~
+> > SELECT personal, family FROM Person ORDER BY family ASC;
+> > ~~~
+> > {: .sql}
+> >
+> > |personal  |family    |
+> > |----------|----------|
+> > |Frank     |Danforth  |
+> > |William   |Dyer      |
+> > |Anderson  |Lake      |
+> > |Frank     |Pabodie   |
+> > |Valentina |Roerich   |
+> {: .solution}
 {: .challenge}

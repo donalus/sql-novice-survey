@@ -15,18 +15,18 @@ keypoints:
 - "Use SELECT... FROM... to get values from a database table."
 - "SQL is case-insensitive (but data is case-sensitive)."
 ---
-A [relational database]({{ site.github.url }}/reference/#relational-database)
+A [relational database]({{ site.github.url }}/reference.html#relational-database)
 is a way to store and manipulate information.
-Databases are arranged as [tables]({{ site.github.url }}/reference/#table).
-Each table has columns (also known as [fields]({{ site.github.url }}/reference/#field)) that describe the data,
-and rows (also known as [records]({{ site.github.url }}/reference/#record)) which contain the data.
+Databases are arranged as [tables]({{ site.github.url }}/reference.html#table).
+Each table has columns (also known as [fields]({{ site.github.url }}/reference.html#fields)) that describe the data,
+and rows (also known as [records]({{ site.github.url }}/reference.html#record)) which contain the data.
 
 When we are using a spreadsheet,
 we put formulas into cells to calculate new values based on old ones.
 When we are using a database,
 we send commands
-(usually called [queries]({{ site.github.url }}/reference/#query))
-to a [database manager]({{ site.github.url }}/reference/#database-manager):
+(usually called [queries]({{ site.github.url }}/reference.html#query))
+to a [database manager]({{ site.github.url }}/reference.html#database-manager):
 a program that manipulates the database for us.
 The database manager does whatever lookups and calculations the query specifies,
 returning the results in a tabular form
@@ -43,7 +43,7 @@ that we can then use as a starting point for further queries.
 > so it *is* possible to move information from one to another.
 {: .callout}
 
-Queries are written in a language called [SQL]({{ site.github.url }}/reference/#sql),
+Queries are written in a language called [SQL]({{ site.github.url }}/reference.html#sql),
 which stands for "Structured Query Language".
 SQL provides hundreds of different ways to analyze and recombine data.
 We will only look at a handful of queries,
@@ -69,9 +69,7 @@ but that handful accounts for most of what scientists do.
 > command, type `.help`.
 {: .callout}
 
-Before we get into the data and using SQLite to select the data,
-
-The tables below show the database we will use in our examples:
+Before we get into using SQLite to select the data, let's take a look at the tables of the database we will use in our examples:
 
 <div class="row">
   <div class="col-md-6" markdown="1">
@@ -230,7 +228,7 @@ We have written our commands in upper case and the names for the table and colum
 in lower case,
 but we don't have to:
 as the example below shows,
-SQL is [case insensitive]({{ site.github.url }}/reference/#case-insensitive).
+SQL is [case insensitive]({{ site.github.url }}/reference.html#case-insensitive).
 
 ~~~
 SeLeCt FaMiLy, PeRsOnAl FrOm PeRsOn;
@@ -263,7 +261,7 @@ command with `;` (semicolon).  When you press enter for a command
 without adding the `;` to the end, it can look something like this:
 
 ~~~
-SELECT * FROM Person
+SELECT id FROM Person
 ...>
 ...>
 ~~~
@@ -327,7 +325,21 @@ SELECT * FROM Person;
 
 > ## Selecting Site Names
 >
-> Write a query that selects only site names from the `Site` table.
+> Write a query that selects only the `name` column from the `Site` table.
+>
+> > ## Solution
+> > 
+> > ~~~
+> > SELECT name FROM Site;
+> > ~~~
+> > {: .sql}
+> >
+> > |name      |
+> > |----------|
+> > |DR-1      |
+> > |DR-3      |
+> > |MSK-4     |
+> {: .solution}
 {: .challenge}
 
 > ## Query Style
